@@ -1,13 +1,9 @@
 'use strict';
 
-var jade            = require('gulp-jade'),
-    inject          = require('gulp-inject'),
-    path            = require('path'),
+var path            = require('path'),
     util            = require('util'),
-    cache           = require('gulp-cache'),
     express         = require('express'),
     app             = express(),
-    assetsFormatter = require('../lib/gulp-assets.js'),
     Sapphire        = require('../'),
     sapphire        = new Sapphire();
 
@@ -21,24 +17,23 @@ function assetsTransformerCss(filepath, file, index, length) {
 }
 
 
-function getDesktopView(res) {
-    var js     = sapphire.asset.src('./client/js/**/*.js', {read: false}),
-        css    = sapphire.asset.src('./client/css/**/*.css', {read: false});
+function getDesktopView(res, prod) {
+    var js     = sapphire.assets.src('./client/js/**/*.js', {read: false}),
+        css    = sapphire.assets.src('./client/css/**/*.css', {read: false}),
 
-        // prepearing the view
-        sapphire.asset.src('./client/views/desktop.jade')
-            .pipe(cache(jade({locals: {date: new Date()}})))
-            .pipe(inject(js,  {starttag: '<!-- inject:head:{{ext}} -->', transform: assetsTransformerJs }))
-            .pipe(inject(css, {starttag: '<!-- inject:head:{{ext}} -->', transform: assetsTransformerCss }))
-            // sending compiled result to the client
-            .on('data', function(data) {
-                // console.log('data', data);
-                data.pipe(res);
-            });
+        view   = sapphire.assets.src('./client/views/desktop.jade')
+            .pipe(sapphire.assets.swapCache(sapphire.assets.jade({locals: {date: new Date()}})))
+            .pipe(sapphire.assets.inject(js,  {starttag: '<!-- inject:head:{{ext}} -->', transform: assetsTransformerJs }))
+            .pipe(sapphire.assets.if(prod, sapphire.assets.inject(css, {starttag: '<!-- inject:head:{{ext}} -->', transform: assetsTransformerCss })));
+
+        // sending html page to the client
+        view.on('data', function(data) {
+            data.pipe(res);
+        });
 }
 
 app.get('/', function(req, res) {
-    getDesktopView(res);
+    getDesktopView(res, false);
 });
 
 app.listen(3333);
