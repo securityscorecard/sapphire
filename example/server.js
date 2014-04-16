@@ -5,10 +5,14 @@ var path            = require('path'),
     express         = require('express'),
     app             = express(),
     Sapphire        = require('../'),
-    sapphire        = new Sapphire();
+    sapphire        = new Sapphire(),
+    cache
+;
 
 
+app.use(express.logger('dev'));
 app.use(express.static(__dirname + '/client'));
+
 
 function assetsTransformerJs(filepath, file, index, length) {
     return util.format( '<script type="text/javascript" src="%s"></script>', filepath.replace( '/client', '' ));
@@ -113,6 +117,44 @@ function sendMinifiedInlineView(res) {
     });
 }
 
+/**
+ * CACHED View with minified inline `css` and `js` files and minified `html` output
+ * @param  {Object} res  connect `response` object
+ */
+function sendMinifiedInlineCachedView(res) {
+    var jsStream, cssStream, viewStream;
+
+    if (cache) {
+        console.log('from cache!');
+        cache.pipe(res);
+
+    } else {
+        jsStream = sapphire.assets.src('./client/js/**/*.js')
+            .pipe(sapphire.assets.concat('all.min.js'))
+            .pipe(sapphire.assets.uglify())
+        ;
+
+        cssStream = sapphire.assets.src('./client/css/**/*.css')
+            .pipe(sapphire.assets.minifyCss())
+            .pipe(sapphire.assets.concat('all.min.css'))
+        ;
+
+        viewStream = sapphire.assets.src('./client/views/desktop.jade')
+            .pipe(sapphire.assets.jade({locals: {date: new Date()}}))
+            .pipe(sapphire.assets.inject(jsStream,  {starttag: '<!-- inject:head:{{ext}} -->', transform: assetsTransformerInlineJs }))
+            .pipe(sapphire.assets.inject(cssStream, {starttag: '<!-- inject:head:{{ext}} -->', transform: assetsTransformerInlineCss }))
+            .pipe(sapphire.assets.minifyHtml())
+        ;
+
+        // sending html page to the client
+        viewStream.on('data', function(data) {
+            cache = data;
+            data.pipe(res);
+        });
+    }
+
+}
+
 app.get('/', function(req, res) {
     sendView(res);
 });
@@ -121,8 +163,12 @@ app.get('/minified', function(req, res) {
     sendMinifiedView(res);
 });
 
-app.get('/minified-inline', function(req, res) {
+app.get('/minified/inline', function(req, res) {
     sendMinifiedInlineView(res);
+});
+
+app.get('/minified/inline/cached', function(req, res) {
+    sendMinifiedInlineCachedView(res);
 });
 
 app.listen(3333, function(){
