@@ -95,13 +95,13 @@ function sendMinifiedInlineView(res) {
     var jsStream, cssStream, viewStream;
 
     jsStream = sapphire.assets.src('./client/js/**/*.js')
-        .pipe(sapphire.assets.concat('all.min.js'))
         .pipe(sapphire.assets.uglify())
+        // .pipe(sapphire.assets.concat('all.min.js'))
     ;
 
     cssStream = sapphire.assets.src('./client/css/**/*.css')
         .pipe(sapphire.assets.minifyCss())
-        .pipe(sapphire.assets.concat('all.min.css'))
+        // .pipe(sapphire.assets.concat('all.min.css'))
     ;
 
     viewStream = sapphire.assets.src('./client/views/desktop.jade')
@@ -130,13 +130,11 @@ function sendMinifiedInlineCachedView(res) {
 
     } else {
         jsStream = sapphire.assets.src('./client/js/**/*.js')
-            .pipe(sapphire.assets.concat('all.min.js'))
             .pipe(sapphire.assets.uglify())
         ;
 
         cssStream = sapphire.assets.src('./client/css/**/*.css')
             .pipe(sapphire.assets.minifyCss())
-            .pipe(sapphire.assets.concat('all.min.css'))
         ;
 
         viewStream = sapphire.assets.src('./client/views/desktop.jade')
