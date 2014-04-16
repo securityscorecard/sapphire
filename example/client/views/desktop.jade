@@ -7,5 +7,16 @@ html
         <!-- inject:head:css -->
         <!-- endinject -->
     body
-        | This is a body text
+        ul
+            li
+                a(href="/") Flat content
+            li
+                a(href="/minified") Minified content
+            li
+                a(href="/minified-inline") Minified inline content
+        | This is a cache check!
+        br
+        | refresh the page to check it the whole view served from cache or not
+        br
+        br
         = date
