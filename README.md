@@ -1,4 +1,4 @@
-sapphire.js
+Sapphire
 ===========
 
 Real Time Server

@@ -1,0 +1,1 @@
+function printString(n){console.log(n)}printString("main.js"),printString("plugin.js");

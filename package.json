@@ -1,5 +1,5 @@
 {
-  "name": "sapphire.js",
+  "name": "sapphire",
   "version": "0.0.0",
   "description": "Real Time Server",
   "main": "index.js",
@@ -8,7 +8,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://github.com/RomanMinkin/sapphire.js.git"
+    "url": "https://github.com/RomanMinkin/sapphire.git"
   },
   "keywords": [
     "http",
@@ -21,9 +21,9 @@
   "author": "Roman Minkin <minkinroman@gmail.com>",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/RomanMinkin/sapphire.js/issues"
+    "url": "https://github.com/RomanMinkin/sapphire/issues"
   },
-  "homepage": "https://github.com/RomanMinkin/sapphire.js",
+  "homepage": "https://github.com/RomanMinkin/sapphire",
   "dependencies": {
     "lodash": "~2.4.1",
     "gulp": "~3.6.0",
