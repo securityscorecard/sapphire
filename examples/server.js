@@ -124,6 +124,8 @@ function sendMinifiedInlineView(res) {
 function sendMinifiedInlineCachedView(res) {
     var jsStream, cssStream, viewStream;
 
+    res.header('Content-Encoding', 'gzip');
+
     if (cache) {
         console.log('from cache!');
         cache.pipe(res);
@@ -142,6 +144,7 @@ function sendMinifiedInlineCachedView(res) {
             .pipe(sapphire.assets.inject(jsStream,  {starttag: '<!-- inject:head:{{ext}} -->', transform: assetsTransformerInlineJs }))
             .pipe(sapphire.assets.inject(cssStream, {starttag: '<!-- inject:head:{{ext}} -->', transform: assetsTransformerInlineCss }))
             .pipe(sapphire.assets.minifyHtml())
+            .pipe(sapphire.assets.gzip())
         ;
 
         // sending html page to the client
