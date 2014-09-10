@@ -1,4 +1,4 @@
 Sapphire
 ===========
 
-Real Time Server
+Assets manager
