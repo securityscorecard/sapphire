@@ -1,34 +1,19 @@
 'use strict';
 
-var path            = require('path'),
-    util            = require('util'),
-    express         = require('express'),
-    app             = express(),
-    Sapphire        = require('../'),
-    sapphire        = new Sapphire(),
+var path        = require('path'),
+    util        = require('util'),
+    express     = require('express'),
+    serveStatic = require('serve-static'),
+    morgan      = require('morgan'),
+    app         = express(),
+    Sapphire    = require('../'),
+    sapphire    = new Sapphire(),
     cache
 ;
 
 
-app.use(express.logger('dev'));
-app.use(express.static(__dirname + '/client'));
-
-
-function assetsTransformerJs(filepath, file, index, length) {
-    return util.format( '<script type="text/javascript" src="%s"></script>', filepath.replace( '/client', '' ));
-}
-
-function assetsTransformerCss(filepath, file, index, length) {
-    return util.format( '<link rel="stylesheet" href="%s">', filepath.replace( '/client', '' ));
-}
-
-function assetsTransformerInlineJs(filepath, file, index, length) {
-    return util.format( '<script type="text/javascript">%s</script>', file.contents.toString());
-}
-
-function assetsTransformerInlineCss(filepath, file, index, length) {
-    return util.format( '<style>%s</style>', file.contents.toString());
-}
+app.use(morgan('dev'));
+app.use(serveStatic(__dirname + '/client'));
 
 /**
  * Raw view with no compression or minification
@@ -42,8 +27,8 @@ function sendView(res) {
 
     viewStream = sapphire.assets.src('./client/views/desktop.jade')
         .pipe(sapphire.assets.jade({locals: {date: new Date()}}))
-        .pipe(sapphire.assets.inject(jsStream,  {starttag: '<!-- inject:head:{{ext}} -->', transform: assetsTransformerJs }))
-        .pipe(sapphire.assets.inject(cssStream, {starttag: '<!-- inject:head:{{ext}} -->', transform: assetsTransformerCss }));
+        .pipe(sapphire.assets.inject(jsStream,  {starttag: '<!-- inject:head:{{ext}} -->', transform: sapphire.transformer.js('/client', '') }))
+        .pipe(sapphire.assets.inject(cssStream, {starttag: '<!-- inject:head:{{ext}} -->', transform: sapphire.transformer.css('/client', '') }));
 
     // sending html page to the client
     viewStream.on('data', function(data) {
@@ -77,8 +62,8 @@ function sendMinifiedView(res) {
 
     viewStream = sapphire.assets.src('./client/views/desktop.jade')
         .pipe(sapphire.assets.jade({locals: {date: new Date()}}))
-        .pipe(sapphire.assets.inject(jsStream,  {starttag: '<!-- inject:head:{{ext}} -->', transform: assetsTransformerJs }))
-        .pipe(sapphire.assets.inject(cssStream, {starttag: '<!-- inject:head:{{ext}} -->', transform: assetsTransformerCss }))
+        .pipe(sapphire.assets.inject(jsStream,  {starttag: '<!-- inject:head:{{ext}} -->', transform: sapphire.transformer.js('/client', '') }))
+        .pipe(sapphire.assets.inject(cssStream, {starttag: '<!-- inject:head:{{ext}} -->', transform: sapphire.transformer.css('/client', '') }))
     ;
 
     // sending html page to the client
@@ -106,8 +91,8 @@ function sendMinifiedInlineView(res) {
 
     viewStream = sapphire.assets.src('./client/views/desktop.jade')
         .pipe(sapphire.assets.jade({locals: {date: new Date()}}))
-        .pipe(sapphire.assets.inject(jsStream,  {starttag: '<!-- inject:head:{{ext}} -->', transform: assetsTransformerInlineJs }))
-        .pipe(sapphire.assets.inject(cssStream, {starttag: '<!-- inject:head:{{ext}} -->', transform: assetsTransformerInlineCss }))
+        .pipe(sapphire.assets.inject(jsStream,  {starttag: '<!-- inject:head:{{ext}} -->', transform: sapphire.transformer.jsInline }))
+        .pipe(sapphire.assets.inject(cssStream, {starttag: '<!-- inject:head:{{ext}} -->', transform: sapphire.transformer.cssInline }))
         .pipe(sapphire.assets.minifyHtml())
     ;
 
@@ -141,8 +126,8 @@ function sendMinifiedInlineCachedView(res) {
 
         viewStream = sapphire.assets.src('./client/views/desktop.jade')
             .pipe(sapphire.assets.jade({locals: {date: new Date()}}))
-            .pipe(sapphire.assets.inject(jsStream,  {starttag: '<!-- inject:head:{{ext}} -->', transform: assetsTransformerInlineJs }))
-            .pipe(sapphire.assets.inject(cssStream, {starttag: '<!-- inject:head:{{ext}} -->', transform: assetsTransformerInlineCss }))
+            .pipe(sapphire.assets.inject(jsStream,  {starttag: '<!-- inject:head:{{ext}} -->', transform: sapphire.transformer.jsInline }))
+            .pipe(sapphire.assets.inject(cssStream, {starttag: '<!-- inject:head:{{ext}} -->', transform: sapphire.transformer.cssInline }))
             .pipe(sapphire.assets.minifyHtml())
             .pipe(sapphire.assets.gzip())
         ;
