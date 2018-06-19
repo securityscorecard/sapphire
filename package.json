@@ -37,7 +37,7 @@
     "gulp-minify-html": "~1.0.0",
     "gulp-imagemin": "~2.2.1",
     "gulp-clean": "~0.3.1",
-    "gulp-less": "~3.0.1",
+    "gulp-less": "~4.0.0",
     "gulp-gzip": "~0.0.6",
     "gulp-jade": "~1.0.0",
     "gulp-if": "~1.2.4",
